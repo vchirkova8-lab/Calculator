@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Калькулятор каркасного дома</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+
+  <header class="topbar">
+    <div class="brand" id="brandHome" title="На главную страницу">
+      <div class="brand-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M3 11.5 12 4l9 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M5.5 10.5V20h13v-9.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 20v-5.5h4V20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="brand-title">Калькулятор каркасного дома</div>
+    </div>
+
+    <div class="topbar-center">
+      <button class="btn btn-ghost" id="newCalcBtn">Новый расчёт</button>
+      <span class="topbar-sep"></span>
+      <div class="area-wrap">
+        <input type="number" class="area-input" id="areaInput" min="30" max="400" value="120" title="Площадь дома, м²">
+      </div>
+      <select class="floors-select" id="floorsSelect" title="Этажность">
+        <option value="1">1 этаж</option>
+        <option value="2">2 этажа</option>
+      </select>
+    </div>
+
+    <div class="topbar-actions">
+      <button class="btn btn-secondary" id="refreshCloudBtn" title="Скачать актуальный прайс с Яндекс.Диска и сравнить цены">
+        <svg viewBox="0 0 24 24" class="btn-ic" fill="none"><path d="M20 11.5a8 8 0 1 0-1.3 6.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M20 5v5h-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Обновить данные
+      </button>
+      <button class="btn" id="loadDataBtn">
+        <svg viewBox="0 0 24 24" class="btn-ic" fill="none"><path d="M12 3v11m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Загрузить данные
+      </button>
+      <button class="btn" id="exportBtnTop">
+        <svg viewBox="0 0 24 24" class="btn-ic" fill="none"><path d="M12 14V3m0 0 4 4m-4-4L8 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Экспорт
+      </button>
+      <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls,.csv" hidden>
+    </div>
+  </header>
+
+    <div class="statusbar">
+      <div class="status-left">
+        <button class="link-btn hidden" id="homeBtn">
+          <svg viewBox="0 0 24 24" fill="none" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"><path d="M3 11.5 12 4l9 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 10.5V20h13v-9.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Главная
+        </button>
+        <button class="link-btn hidden" id="statusBackBtn">← К расчёту</button>
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Данные загружены</span>
+      </div>
+    <div class="status-right">
+      <button class="link-btn" id="priceViewBtn">Прайс</button>
+      <button class="link-btn" id="helpViewBtn">Помощь</button>
+      <span id="updatedAt"></span>
+    </div>
+  </div>
+
+  <main class="layout">
+
+    <aside class="sidebar" id="calcSidebar">
+      <div class="sidebar-title">Разделы</div>
+      <nav class="sec-nav" id="sectionNav"></nav>
+    </aside>
+
+    <section class="content">
+
+      <!-- Вид: приветствие -->
+      <div class="view hidden" id="welcomeView">
+        <div class="welcome-box">
+          <svg class="welcome-icon" viewBox="0 0 24 24" fill="none">
+            <path d="M3 11.5 12 4l9 7.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5.5 10.5V20h13v-9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M10 20v-5.5h4V20" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="welcome-title">Добро пожаловать</div>
+          <p class="welcome-text">Загрузите прайс-лист в формате Excel, чтобы начать расчёт стоимости каркасного дома.</p>
+          <div class="welcome-sub">Или работайте со встроенными базовыми данными</div>
+          <button class="btn btn-blue welcome-btn" id="startCalcBtn">
+            <svg viewBox="0 0 24 24" class="btn-ic" fill="none"><rect x="5" y="3" width="14" height="18" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M8.5 7h7M8.5 11h2m3 0h2m-7 4h2m3 0h2m-7 4h7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            Начать расчёт
+          </button>
+        </div>
+      </div>
+
+      <!-- Вид: калькулятор -->
+      <div class="view hidden" id="calcView">
+        <div class="section-head">
+          <div class="section-title" id="sectionTitle">1. Подготовка</div>
+          <div class="section-sub" id="sectionSub"></div>
+        </div>
+        <div class="cards" id="cardsContainer"></div>
+      </div>
+
+      <!-- Вид: прайс -->
+      <div class="view fullview hidden" id="priceView">
+        <div class="view-head">
+          <div>
+            <div class="view-title">Прайс-лист</div>
+            <div class="view-sub">Цены позиций справочника. Значения можно править вручную или загрузить таблицей.</div>
+          </div>
+          <div class="view-actions">
+            <button class="btn btn-secondary" id="refreshCloudBtn2">Обновить данные</button>
+            <button class="btn btn-secondary" id="templateBtn">
+              <svg viewBox="0 0 24 24" class="btn-ic" fill="none"><path d="M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.7"/><path d="M14 3v6h6" stroke="currentColor" stroke-width="1.7"/></svg>
+              Скачать шаблон
+            </button>
+            <button class="btn btn-blue" id="loadDataBtn2">Загрузить данные</button>
+          </div>
+        </div>
+        <div class="price-toolbar">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <input type="text" id="priceSearch" placeholder="Поиск по наименованию...">
+          </div>
+          <select id="priceSectionFilter" class="select"></select>
+          <div class="price-counter" id="priceCounter"></div>
+        </div>
+        <div class="price-table-wrap" id="priceTableWrap"></div>
+      </div>
+
+      <!-- Вид: итог -->
+      <div class="view fullview hidden" id="totalView">
+        <div class="view-head">
+          <div>
+            <div class="view-title">Итоговый расчёт</div>
+            <div class="view-sub" id="totalSub"></div>
+          </div>
+        </div>
+        <div class="total-wrap" id="totalContent"></div>
+      </div>
+
+      <!-- Вид: помощь -->
+      <div class="view fullview hidden" id="helpView">
+        <div class="help-wrap" id="helpWrap"></div>
+      </div>
+
+    </section>
+  </main>
+
+  <footer class="footerbar">
+    <div class="footer-total">Общая стоимость: <b id="totalValue">0 ₽</b></div>
+    <div class="footer-perm2">Цена за м²: <b id="perM2Value">—</b></div>
+    <div class="footer-actions">
+      <button class="btn btn-ghost" id="recalcBtn">Пересчитать</button>
+      <button class="btn btn-blue" id="showTotalBtn">Показать итог</button>
+    </div>
+  </footer>
+
+  <div id="toastHost"></div>
+
+  <div class="modal-overlay hidden" id="confirmOverlay">
+    <div class="modal">
+      <div class="modal-icon">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </div>
+      <div class="modal-title">Начать новый расчёт?</div>
+      <p class="modal-text">Параметры текущего дома и включённые позиции будут восстановлены по умолчанию. Загруженный прайс-лист и цены останутся без изменений.</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="confirmCancel">Отмена</button>
+        <button class="btn btn-blue" id="confirmNew">Новый расчёт</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="vendor/xlsx.full.min.js"></script>
+<script src="data/default-dataset.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
